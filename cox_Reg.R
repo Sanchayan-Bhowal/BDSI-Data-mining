@@ -13,7 +13,7 @@ names_pathway <- colnames(pathway.scores)
 combos <- unique(gsub("\\_.*$", "", names_pathway))
 combos <- unique(gsub("\\..*$", "", combos))
 
-possi_feat_pathway=sapply(combos, function(combo) which(grepl(combo, names_pathway)))
+possi_feat_pathway=sapply(combos, function(combo) which(startsWith(names_pathway,combo)))
 features_pathway1=c()
 
 for (i in 1:length(possi_feat_pathway)) {
@@ -24,7 +24,6 @@ for (i in 1:length(possi_feat_pathway)) {
 }
 
 pathway_surv1=as.data.frame(cbind(pathway.scores[,features_pathway1],Y))
-
 
 cox_model <- boxcox(Y~.,data=pathway_surv1)
 

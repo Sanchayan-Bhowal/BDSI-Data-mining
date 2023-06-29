@@ -72,18 +72,3 @@ forward_pathway <- step(intercept_pathway, direction='forward',
 backward_pathway <- step(intercept_pathway, direction='backward', 
                          scope=formula(all_pathway), trace=0)
 
-names_pathway <- colnames(pathway.scores)
-combos <- unique(gsub("\\_.*$", "", names_pathway))
-combos <- unique(gsub("\\..*$", "", combos))
-
-possi_feat_pathway=sapply(combos, function(combo) which(grepl(combo, names_pathway)))
-features_pathway1=c()
-
-for (i in 1:length(possi_feat_pathway)) {
-  if(length(possi_feat_pathway[[i]])>2)
-  {
-    features_pathway1=c(features_pathway1,sample(possi_feat_pathway[[i]],1)) 
-  }
-}
-
-pathway_surv1=as.data.frame(cbind(pathway.scores[,features_pathway1],Y))
