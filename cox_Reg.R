@@ -75,8 +75,11 @@ model_pc1 <- step(all_pc, direction='backward',
 ##genetics and survival
 pathway_surv2 = pathway_surv %>% 
   dplyr::select(KEGG_RIG_I_LIKE_RECEPTOR_SIGNALING_PATHWAY,MODULE_457,
-         MORF_RAD21,KEGG_RIBOFLAVIN_METABOLISM,GNF2_TTN,MORF_SART1,
-         MYC_UP.V1_DN,MORF_TERF1,MODULE_440,MODULE_159,Y)
+                MORF_RAD21,KEGG_RIBOFLAVIN_METABOLISM,GNF2_TTN,MORF_SART1,MYC_UP.V1_DN,MORF_TERF1,
+                MODULE_440,MODULE_159,MORF_EIF3S6
+                ,KEGG_VASOPRESSIN_REGULATED_WATER_REABSORPTION,KEGG_ENDOMETRIAL_CANCER,
+                MODULE_382,HALLMARK_MYC_TARGETS_V1 ,MODULE_81,MORF_RAB11A ,MORF_DEK ,GNF2_EIF3S6 ,GLI1_UP.V1_UP  
+                ,MODULE_183,KEGG_GLYOXYLATE_AND_DICARBOXYLATE_METABOLISM ,MORF_RPA1,GNF2_SPI1,Y)
 
 cox_model <- boxcox(Y~.,data=pathway_surv2)
 
@@ -89,7 +92,8 @@ model_pathway2 <- lm(g(Y) ~ ., data=pathway_surv2)
 
 ##imaging and survival
 pc_surv2 = pc_surv %>% 
-  dplyr::select(FLAIR_NCR.NET.17, T2_NCR.NET.4, T2_ED.1, FLAIR_NCR.NET.5,Y)
+  dplyr::select(FLAIR_NCR.NET.17,T2_NCR.NET.4,T2_ED.1,
+                  FLAIR_NCR.NET.5,T2_NCR.NET.7,T2_NCR.NET.9,Y)
 
 cox_model <- boxcox(Y~.,data=pc_surv2)
 
