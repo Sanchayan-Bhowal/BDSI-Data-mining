@@ -1,11 +1,17 @@
 library(MASS)
 library(dplyr)
 set.seed(7)
-pc_surv=as.data.frame(cbind(pc_scores,Y))
-pathway_surv <- as.data.frame(cbind(pathway.scores,Y))
 pc_scores=as.data.frame(pc_scores)
 pc_scores <- na.omit(pc_scores)
 pathway.scores <- na.omit(pathway.scores)
+
+#boxcox transformation
+J<-as.data.frame(Y)
+normalization <- preProcess(J,method="BoxCox")
+P=predict(normalization,J)$Y
+
+pc_surv=as.data.frame(cbind(pc_scores,P))
+pathway_surv <- as.data.frame(cbind(pathway.scores,P))
 
 #feature selection 1
 ##genetics and survival
@@ -23,17 +29,13 @@ for (i in 1:length(possi_feat_pathway)) {
   }
 }
 
-pathway_surv1=as.data.frame(cbind(pathway.scores[,features_pathway1],Y))
+pathway_surv1=as.data.frame(cbind(pathway.scores[,features_pathway1],P))
 
-cox_model <- boxcox(Y~.,data=pathway_surv1)
 
-lambda <- cox_model$x[which.max(cox_model$y)]
-
-g <- function(x) (x^lambda-1)/lambda #box-cox transformation
-intercept_only_pathway <- lm(g(Y) ~ 1, data=pathway_surv1)
+intercept_only_pathway <- lm(P ~ 1, data=pathway_surv1)
 
 #define model with all predictors
-all_pathway <- lm(g(Y) ~ ., data=pathway_surv1)
+all_pathway <- lm(P ~ ., data=pathway_surv1)
 
 #perform forward stepwise regression
 model_pathway1 <- step(all_pathway, direction='backward', 
@@ -53,18 +55,13 @@ pc_surv1=pc_surv %>%
          FLAIR_NCR.NET.3,FLAIR_ED.3,FLAIR_ET.3,T1_NCR.NET.4,T1_ED.4,T1_ET.4,
          T1Gd_NCR.NET.4,T1Gd_ED.4,T1Gd_ET.4,
          T2_NCR.NET.4,T2_ED.4,T2_ET.4,
-         FLAIR_NCR.NET.4,FLAIR_ED.4,FLAIR_ET.4,Y)
+         FLAIR_NCR.NET.4,FLAIR_ED.4,FLAIR_ET.4,P)
 
 
-cox_model <- boxcox(Y~.,data=pc_surv1)
-
-lambda <- cox_model$x[which.max(cox_model$y)]
-
-g <- function(x) (x^lambda-1)/lambda #box-cox transformation
-intercept_only_pc <- lm(g(Y) ~ 1, data=pc_surv1)
+intercept_only_pc <- lm(P ~ 1, data=pc_surv1)
 
 #define model with all predictors
-all_pc <- lm(g(Y) ~ ., data=pc_surv1)
+all_pc <- lm(P ~ ., data=pc_surv1)
 
 #perform forward stepwise regression
 model_pc1 <- step(all_pc, direction='backward', 
@@ -79,29 +76,62 @@ pathway_surv2 = pathway_surv %>%
                 MODULE_440,MODULE_159,MORF_EIF3S6
                 ,KEGG_VASOPRESSIN_REGULATED_WATER_REABSORPTION,KEGG_ENDOMETRIAL_CANCER,
                 MODULE_382,HALLMARK_MYC_TARGETS_V1 ,MODULE_81,MORF_RAB11A ,MORF_DEK ,GNF2_EIF3S6 ,GLI1_UP.V1_UP  
-                ,MODULE_183,KEGG_GLYOXYLATE_AND_DICARBOXYLATE_METABOLISM ,MORF_RPA1,GNF2_SPI1,Y)
+                ,MODULE_183,KEGG_GLYOXYLATE_AND_DICARBOXYLATE_METABOLISM ,MORF_RPA1,GNF2_SPI1,P)
 
-cox_model <- boxcox(Y~.,data=pathway_surv2)
 
-lambda <- cox_model$x[which.max(cox_model$y)]
-
-g <- function(x) (x^lambda-1)/lambda #box-cox transformation
 
 #define model with all predictors
-model_pathway2 <- lm(g(Y) ~ ., data=pathway_surv2)
+model_pathway2 <- lm(P ~ ., data=pathway_surv2)
 
 ##imaging and survival
 pc_surv2 = pc_surv %>% 
   dplyr::select(FLAIR_NCR.NET.17,T2_NCR.NET.4,T2_ED.1,
-                  FLAIR_NCR.NET.5,T2_NCR.NET.7,T2_NCR.NET.9,Y)
+                  FLAIR_NCR.NET.5,T2_NCR.NET.7,T2_NCR.NET.9,P)
 
-cox_model <- boxcox(Y~.,data=pc_surv2)
-
-lambda <- cox_model$x[which.max(cox_model$y)]
-
-g <- function(x) (x^lambda-1)/lambda #box-cox transformation
 
 #define model with all predictors
-model_pc2 <- lm(g(Y) ~ ., data=pc_surv2)
+model_pc2 <- lm(P ~ ., data=pc_surv2)
 
 save(model_pathway1,model_pathway2,model_pc1,model_pc2,file="models.rda")
+
+#feature selction 3
+
+##genetics and survival
+pathway_surv3 = pathway_surv %>% 
+  dplyr::select(HALLMARK_MYC_TARGETS_V1,KEGG_RIBOFLAVIN_METABOLISM,
+                KEGG_RIG_I_LIKE_RECEPTOR_SIGNALING_PATHWAY,KEGG_THYROID_CANCER,
+                MORF_RAD21,MORF_RPA1,MORF_TERF1,
+                MORF_PPP2CA,MORF_RAF1,MORF_SART1,MODULE_115,MODULE_159,P)
+
+
+
+#define model with all predictors
+model_pathway3 <- lm(P ~ ., data=pathway_surv3)
+
+##imaging and survival
+pc_surv3 = pc_surv %>% 
+  dplyr::select(T2_NCR.NET.4,T2_ED.1,FLAIR_NCR.NET.5,FLAIR_NCR.NET.17,P)
+
+
+#define model with all predictors
+model_pc3 <- lm(P ~ ., data=pc_surv3)
+
+#feature selction 4
+
+##genetics and survival
+pathway_surv4 = pathway_surv %>% 
+  dplyr::select(HALLMARK_MYC_TARGETS_V1,KEGG_RIG_I_LIKE_RECEPTOR_SIGNALING_PATHWAY,
+                MORF_RAD21,MORF_TERF1,MORF_SART1,MODULE_159,P)
+
+
+
+#define model with all predictors
+model_pathway4 <- lm(P ~ ., data=pathway_surv4)
+
+##imaging and survival
+pc_surv4 = pc_surv %>% 
+  dplyr::select(T2_NCR.NET.4,T2_ED.1,FLAIR_NCR.NET.17,P)
+
+
+#define model with all predictors
+model_pc4 <- lm(P ~ ., data=pc_surv4)

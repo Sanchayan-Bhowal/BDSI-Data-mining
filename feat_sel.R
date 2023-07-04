@@ -1,17 +1,17 @@
-set.seed(7)
+set.seed(07272023)
 # load the library
 library(caret)
 # load the data
 # define the control using a random forest selection function
 control <- rfeControl(functions=rfFuncs, method="cv", number=10)
 # run the RFE algorithm
-results <- rfe(pathway.scores, Y, sizes=c(1:30), rfeControl=control)
+results_pathway <- rfe(pathway.scores, Y, sizes=c(1:60), rfeControl=control)
 # summarize the results
 print(results)
 # list the chosen features
 predictors(results)
 # plot the results
-plot(results, type=c("g", "o"),xlim=c(0,30))
+plot(results_pathway, type=c("g", "o"),xlim=c(0,60))
 
 features_pathway <- results[["optVariables"]][1:24]
 
@@ -73,4 +73,83 @@ forward_pathway <- step(intercept_pathway, direction='forward',
 #perform backward stepwise regression
 backward_pathway <- step(intercept_pathway, direction='backward', 
                          scope=formula(all_pathway), trace=0)
+#boruta
+library(Boruta)
+boruta_path <- Boruta(P~.,data = pathway_surv)
+boruta_pc <- Boruta(P~.,data = pc_surv)
 
+#confirmed and  tentative
+boruta_path1 <- names(boruta_path$finalDecision[boruta_path$finalDecision %in% 
+                                                  c("Confirmed", "Tentative")])
+
+formula_pathway_b1 <- as.formula(paste("P ~", paste(boruta_path1, collapse = "+")))
+
+boruta_pc1 <- names(boruta_pc$finalDecision[boruta_pc$finalDecision %in% 
+                                                  c("Confirmed", "Tentative")])
+
+formula_pc_b1 <- as.formula(paste("P ~", paste(boruta_pc1, collapse = "+")))
+
+#confirmed
+boruta_path2 <- names(boruta_path$finalDecision[boruta_path$finalDecision %in% 
+                                                  c("Confirmed")])
+
+formula_pathway_b2 <- as.formula(paste("P ~", paste(boruta_path2, collapse = "+")))
+
+boruta_pc2 <- names(boruta_pc$finalDecision[boruta_pc$finalDecision %in% 
+                                                  c("Confirmed")])
+formula_pc_b2 <- as.formula(paste("P ~", paste(boruta_pc2, collapse = "+")))
+
+
+#lmfuncs
+control <- rfeControl(functions=lmFuncs, method="cv", number=10)
+# run the RFE algorithm
+results_pathway2 <- rfe(pathway.scores, P, sizes=c(1:30), rfeControl=control)
+# summarize the results
+print(results_pathway2)
+# list the chosen features
+predictors(results_pathway2)
+# plot the results
+plot(results_pathway2, type=c("g", "o"),xlim=c(0,30))
+# generate formula
+formula_pathway_lm <- as.formula(paste("P ~", 
+                                       paste(predictors(results_pathway2), 
+                                             collapse = "+")))
+
+results_pc2 <- rfe(pc_scores, P, sizes=c(1:30), rfeControl=control)
+# summarize the results
+print(results_pc2)
+# list the chosen features
+predictors(results_pc2)
+# plot the results
+plot(results_pc2, type=c("g", "o"),xlim=c(0,30))
+# generate formula
+formula_pc_lm <- as.formula(paste("P ~", 
+                                       paste(predictors(results_pc2), 
+                                             collapse = "+")))
+
+#baggedTrees
+control <- rfeControl(functions=treebagFuncs, method="cv", number=10)
+# run the RFE algorithm
+results_pathway3 <- rfe(pathway.scores, P, sizes=c(1:30), rfeControl=control)
+# summarize the results
+print(results_pathway3)
+# list the chosen features
+predictors(results_pathway3)
+# plot the results
+plot(results_pathway3, type=c("g", "o"),xlim=c(0,30))
+# generate formula
+formula_pathway_bt <- as.formula(paste("P ~", 
+                                       paste(predictors(results_pathway3), 
+                                             collapse = "+")))
+
+results_pc3 <- rfe(pc_scores, P, sizes=c(1:30), rfeControl=control)
+# summarize the results
+print(results_pc3)
+# list the chosen features
+predictors(results_pc3)
+# plot the results
+plot(results_pc3, type=c("g", "o"),xlim=c(0,30))
+# generate formula
+formula_pc_bt <- as.formula(paste("P ~", 
+                                  paste(predictors(results_pc3), 
+                                        collapse = "+")))
