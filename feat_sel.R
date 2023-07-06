@@ -78,7 +78,7 @@ library(Boruta)
 boruta_path <- Boruta(P~.,data = pathway_surv)
 boruta_pc <- Boruta(P~.,data = pc_surv)
 
-#confirmed and  tentative
+#confirmed and tentative
 boruta_path1 <- names(boruta_path$finalDecision[boruta_path$finalDecision %in% 
                                                   c("Confirmed", "Tentative")])
 
@@ -152,4 +152,123 @@ plot(results_pc3, type=c("g", "o"),xlim=c(0,30))
 # generate formula
 formula_pc_bt <- as.formula(paste("P ~", 
                                   paste(predictors(results_pc3), 
+                                        collapse = "+")))
+
+#removing multicolinearity
+correlationMatrix <- cor(pathway.scores)
+highlyCorrelated <- findCorrelation(correlationMatrix,cutoff = 0.5)
+pathway_surv_cor <- pathway_surv[,-highlyCorrelated]
+pathway.scores_cor <- pathway.scores[,-highlyCorrelated]
+
+correlationMatrix <- cor(pc_scores)
+highlyCorrelated <- findCorrelation(correlationMatrix,cutoff = 0.5)
+pc_surv_cor <- pc_surv[,-highlyCorrelated]
+pc_scores_cor <- pc_scores[,-highlyCorrelated]
+
+#Random Forests
+control <- rfeControl(functions=rfFuncs, method="cv", number=10)
+# run the RFE algorithm
+results_pathway_cor <- rfe(pathway.scores_cor, P, sizes=c(1:55), rfeControl=control)
+# summarize the results
+print(results_pathway_cor)
+# list the chosen features
+predictors(results_pathway_cor)
+# plot the results
+plot(results_pathway_cor, type=c("g", "o"),xlim=c(0,55))
+# generate formula
+formula_pathway_rf_cor <- as.formula(paste("P ~", 
+                                           paste(predictors(results_pathway_cor), 
+                                                 collapse = "+")))
+
+results_pc_cor <- rfe(pc_scores_cor, P, sizes=c(1:55), rfeControl=control)
+# summarize the results
+print(results_pc_cor)
+# list the chosen features
+predictors(results_pc_cor)
+# plot the results
+plot(results_pc_cor, type=c("g", "o"),xlim=c(0,55))
+# generate formula
+formula_pc_rf_cor <- as.formula(paste("P ~", 
+                                      paste(predictors(results_pc_cor), 
+                                            collapse = "+")))
+
+#boruta
+library(Boruta)
+boruta_path_cor <- Boruta(P~.,data = pathway_surv_cor)
+boruta_pc_cor <- Boruta(P~.,data = pc_surv_cor)
+
+#confirmed and tentative
+boruta_path1_cor <- names(boruta_path_cor$finalDecision[boruta_path_cor$finalDecision %in% 
+                                                  c("Confirmed", "Tentative")])
+
+formula_pathway_b1_cor <- as.formula(paste("P ~", paste(boruta_path1_cor, collapse = "+")))
+
+boruta_pc1_cor <- names(boruta_pc_cor$finalDecision[boruta_pc_cor$finalDecision %in% 
+                                              c("Confirmed", "Tentative")])
+
+formula_pc_b1_cor <- as.formula(paste("P ~", paste(boruta_pc1_cor, collapse = "+")))
+
+#confirmed
+boruta_path2_cor <- names(boruta_path_cor$finalDecision[boruta_path_cor$finalDecision %in% 
+                                                  c("Confirmed")])
+
+formula_pathway_b2_cor <- as.formula(paste("P ~", paste(boruta_path2_cor, collapse = "+")))
+
+boruta_pc2_cor <- names(boruta_pc_cor$finalDecision[boruta_pc_cor$finalDecision %in% 
+                                              c("Confirmed")])
+formula_pc_b2_cor <- as.formula(paste("P ~", paste(boruta_pc2_cor, collapse = "+")))
+
+
+#lmfuncs
+control <- rfeControl(functions=lmFuncs, method="cv", number=10)
+# run the RFE algorithm
+results_pathway2_cor <- rfe(pathway.scores_cor, P, sizes=c(1:55), rfeControl=control)
+# summarize the results
+print(results_pathway2_cor)
+# list the chosen features
+predictors(results_pathway2_cor)
+# plot the results
+plot(results_pathway2_cor, type=c("g", "o"),xlim=c(0,55))
+# generate formula
+formula_pathway_lm_cor <- as.formula(paste("P ~", 
+                                       paste(predictors(results_pathway2_cor), 
+                                             collapse = "+")))
+
+results_pc2_cor <- rfe(pc_scores_cor, P, sizes=c(1:55), rfeControl=control)
+# summarize the results
+print(results_pc2_cor)
+# list the chosen features
+predictors(results_pc2_cor)
+# plot the results
+plot(results_pc2_cor, type=c("g", "o"),xlim=c(0,55))
+# generate formula
+formula_pc_lm_cor <- as.formula(paste("P ~", 
+                                  paste(predictors(results_pc2_cor), 
+                                        collapse = "+")))
+
+#baggedTrees
+control <- rfeControl(functions=treebagFuncs, method="cv", number=10)
+# run the RFE algorithm
+results_pathway3_cor <- rfe(pathway.scores_cor, P, sizes=c(1:55), rfeControl=control)
+# summarize the results
+print(results_pathway3_cor)
+# list the chosen features
+predictors(results_pathway3_cor)
+# plot the results
+plot(results_pathway3_cor, type=c("g", "o"),xlim=c(0,55))
+# generate formula
+formula_pathway_bt_cor <- as.formula(paste("P ~", 
+                                       paste(predictors(results_pathway3_cor), 
+                                             collapse = "+")))
+
+results_pc3_cor <- rfe(pc_scores_cor, P, sizes=c(1:55), rfeControl=control)
+# summarize the results
+print(results_pc3_cor)
+# list the chosen features
+predictors(results_pc3_cor)
+# plot the results
+plot(results_pc3_cor, type=c("g", "o"),xlim=c(0,55))
+# generate formula
+formula_pc_bt_cor <- as.formula(paste("P ~", 
+                                  paste(predictors(results_pc3_cor), 
                                         collapse = "+")))

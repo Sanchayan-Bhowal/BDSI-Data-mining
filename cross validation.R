@@ -34,6 +34,40 @@ cv_model_pc5 <- train(formula_pc_lm, data = pc_surv,
 cv_model_pc6 <- train(formula_pc_bt, data = pc_surv, 
                       method = "lm", trControl = ctrl)
 
+#without multicolinearity
+
+#genetics
+##random forests
+cv_model_path2_cor <- train(formula_pathway_rf_cor, data = pathway_surv_cor, 
+                        method = "lm", trControl = ctrl)
+##boruta
+cv_model_path3_cor <- train(formula_pathway_b1_cor, data = pathway_surv_cor, 
+                        method = "lm", trControl = ctrl)
+cv_model_path4_cor <- train(formula_pathway_b2_cor, data = pathway_surv_cor, 
+                        method = "lm", trControl = ctrl)
+##lmfuncs
+cv_model_path5_cor <- train(formula_pathway_lm_cor, data = pathway_surv_cor, 
+                        method = "lm", trControl = ctrl)
+##baggedTrees
+cv_model_path6_cor <- train(formula_pathway_bt_cor, data = pathway_surv_cor, 
+                        method = "lm", trControl = ctrl)
+
+#imaging
+##random forests
+cv_model_pc2_cor <- train(formula_pc_rf_cor, data = pc_surv_cor, 
+                            method = "lm", trControl = ctrl)
+##boruta
+cv_model_pc3_cor <- train(formula_pc_b1_cor, data = pc_surv_cor, 
+                      method = "lm", trControl = ctrl)
+cv_model_pc4_cor <- train(formula_pc_b2_cor, data = pc_surv_cor, 
+                      method = "lm", trControl = ctrl)
+
+##lmfuncs
+cv_model_pc5_cor <- train(formula_pc_lm_cor, data = pc_surv_cor, 
+                      method = "lm", trControl = ctrl)
+##baggedTrees
+cv_model_pc6_cor <- train(formula_pc_bt_cor, data = pc_surv_cor, 
+                      method = "lm", trControl = ctrl)
 save(cv_model_path1,
     cv_model_path2,
     cv_model_path3,
@@ -47,3 +81,15 @@ save(cv_model_path1,
     cv_model_pc5,
     cv_model_pc6,
     file="models.rda")
+
+save(cv_model_path2_cor,
+    cv_model_path3_cor,
+    cv_model_path4_cor,
+    cv_model_path5_cor,
+    cv_model_path6_cor,
+    cv_model_pc2_cor,
+    cv_model_pc3_cor,
+    cv_model_pc4_cor,
+    cv_model_pc5_cor,
+    cv_model_pc6_cor,
+    file="models_cor.rda")
