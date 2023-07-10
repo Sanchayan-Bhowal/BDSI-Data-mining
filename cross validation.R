@@ -234,3 +234,16 @@ pc_bt<-train(formula_pc_bt, data = pc_surv_train,
 predictions_pc_bt <- pc_bt %>% predict(pc_surv_test)
 
 pc_bt_sum = postResample(predictions_pc_bt, P_test)
+
+save(path_naive,
+     path_rf,
+     path_bor_ct,
+     path_bor_c,
+     path_lm,
+     path_bt,
+     pc_naive,
+     pc_rf,
+     pc_bor_ct,
+     pc_bor_c,
+     pc_lm,
+     pc_bt,file = "ridge_models.rda")
