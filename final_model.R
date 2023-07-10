@@ -5,20 +5,36 @@ model_summary_path<-rbind(cv_model_path1$results,
     cv_model_path4$results,
     cv_model_path5$results,
     cv_model_path6$results)
+
+ridge_summary_path<-rbind(path_naive_sum,
+    path_rf_sum,
+    path_bor_ct_sum,
+    path_bor_c_sum,
+    path_lm_sum,
+    path_bt_sum)
+
 model_summary_pc<- rbind(cv_model_pc1$results,
     cv_model_pc2$results,
     cv_model_pc3$results,
     cv_model_pc4$results,
     cv_model_pc5$results,
     cv_model_pc6$results)
+
+ridge_summary_pc<-rbind(pc_naive_sum,
+    pc_rf_sum,
+    pc_bor_ct_sum,
+    pc_bor_c_sum,
+    pc_lm_sum,
+    pc_bt_sum)
+
 #best model predictions
-P_path=predict(cv_model_path4,pathway_surv)
-P_pc=predict(cv_model_pc4,pc_surv)
+P_path=predict(path_bt,pathway_surv)
+P_pc=predict(pc_lm,pc_surv)
 
 #linear model
 final_model=lm(P~P_path+P_pc)
 #adjusting X for non-linearity
-final_model=lm(P~I(P_path^3)+I(P_pc^3))
+final_model=lm(P~P_path+I(asin(P_try)))
 summary(final_model)
 
 library(car)

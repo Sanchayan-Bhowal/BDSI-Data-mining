@@ -1,6 +1,6 @@
 library(MASS)
 library(dplyr)
-set.seed(7)
+set.seed(07272023)
 pc_scores=as.data.frame(pc_scores)
 pc_scores <- na.omit(pc_scores)
 pathway.scores <- na.omit(pathway.scores)
@@ -9,9 +9,29 @@ pathway.scores <- na.omit(pathway.scores)
 J<-as.data.frame(Y)
 normalization <- preProcess(J,method="BoxCox")
 P=predict(normalization,J)$Y
+removed <- sample(1:61,12)
+P_test=P[removed]
+P_train <- P[-removed]
 
 pc_surv=as.data.frame(cbind(pc_scores,P))
+pc_surv_train <- pc_surv[-removed,]
+pc_surv_test <- pc_surv[removed,]
+
+pc_surv1_train <- pc_surv1[-removed,]
+pc_surv1_test <- pc_surv1[removed,]
+
 pathway_surv <- as.data.frame(cbind(pathway.scores,P))
+pathway_surv_train <- pathway_surv[-removed,]
+pathway_surv_test <- pathway_surv[removed,]
+
+pathway_surv1_train <- pathway_surv1[-removed,]
+pathway_surv1_test <- pathway_surv1[removed,]
+
+pathway.scores_train <- pathway.scores[-removed,]
+pathway.scores_test <- pathway.scores[removed,]
+
+pc_scores_train <- pc_scores[-removed,]
+pc_scores_test <- pc_scores[removed,]
 
 #feature selection 1
 ##genetics and survival
