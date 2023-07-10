@@ -182,6 +182,15 @@ formula_pc_bt <- as.formula(paste("P ~",
                                   paste(predictors(results_pc3), 
                                         collapse = "+")))
 
+
+
+
+
+
+
+
+
+
 #removing multicolinearity
 correlationMatrix <- cor(pathway.scores)
 highlyCorrelated <- findCorrelation(correlationMatrix,cutoff = 0.5)

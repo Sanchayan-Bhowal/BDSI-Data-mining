@@ -32,7 +32,7 @@ P_path=predict(path_bt,pathway_surv)
 P_pc=predict(pc_lm,pc_surv)
 
 #linear model
-final_model=lm(P~P_path+P_pc)
+final_model=lm(P~P_path*P_pc)
 #adjusting X for non-linearity
 final_model=lm(P~P_path+I(asin(P_try)))
 summary(final_model)
