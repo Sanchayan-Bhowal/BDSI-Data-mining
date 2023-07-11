@@ -27,12 +27,33 @@ ridge_summary_pc<-rbind(pc_naive_sum,
     pc_lm_sum,
     pc_bt_sum)
 
+class_summary_path<-rbind(pathway_naive_sum_class,
+                          pathway_rf_sum_class,
+                          pathway_b1_sum_class,
+                          pathway_b2_sum_class,
+                          pathway_lm_sum_class,
+                          pathway_bt_sum_class)
+
+class_summary_pc<-rbind(pc_naive_sum_class,
+                        pc_rf_sum_class,
+                        pc_b1_sum_class,
+                        pc_b2_sum_class,
+                        pc_bt_sum_class)
+save(ridge_summary_path,ridge_summary_pc,file = "ridge_summaries.rda")
+
 #best model predictions
 P_path=predict(path_bt,pathway_surv)
 P_pc=predict(pc_lm,pc_surv)
 
+#best model predictions
+P_path_class=predict(pathway_lm_class,pathway_surv_class)
+P_pc_class=predict(pc_naive_class,pc_surv_class)
+
 #linear model
-final_model=lm(P~P_path*P_pc)
+final_model=lm(P~P_path+P_pc)
+#logit model
+final_model_class=glm(Y_class~P_path_class+P_pc_class,family = "binomial")
+
 #adjusting X for non-linearity
 final_model=lm(P~P_path+I(asin(P_try)))
 summary(final_model)
@@ -71,3 +92,6 @@ library(ggResidpanel)
 #diagnostic plots
 resid_panel(final_model_cor,smoother = T,qqbands = T)
 
+plot(as.numeric(Y_class)-1,col="red")
+par(new=T)
+plot(as.numeric(P_path_class)-1,col="blue")

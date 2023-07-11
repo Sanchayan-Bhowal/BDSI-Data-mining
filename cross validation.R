@@ -103,7 +103,7 @@ save(cv_model_path2_cor,
 parameters <- c(seq(0.1, 2, by =0.1) ,  seq(2, 5, 0.5) , seq(5, 25, 1))
 
 #naive
-path_naive <- train(P ~ ., data = pathway_surv1_train,
+path_naive <- train(P ~ ., data = pathway_surv_train,
              method = 'glmnet', 
              tuneGrid = expand.grid(alpha = 0, lambda = parameters),
              trControl = ctrl,
