@@ -100,17 +100,18 @@ save(cv_model_path2_cor,
 
 #ridge regression
 
+alpha_level <- c(seq(0, 1, by = 0.01))
 parameters <- c(seq(0.1, 2, by =0.1) ,  seq(2, 5, 0.5) , seq(5, 25, 1))
 
 #naive
 path_naive <- train(P ~ ., data = pathway_surv_train,
              method = 'glmnet', 
-             tuneGrid = expand.grid(alpha = 0, lambda = parameters),
+             tuneLength=10,
              trControl = ctrl,
              metric = "RMSE"
 )
 
-predictions_path_naive <- path_naive %>% predict(pathway_surv1_test)
+predictions_path_naive <- path_naive %>% predict(pathway_surv_test)
 path_naive_sum = postResample(predictions_path_naive, P_test)
 
 #randomForests
