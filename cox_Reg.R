@@ -33,6 +33,12 @@ pathway.scores_test <- pathway.scores[removed,]
 pc_scores_train <- pc_scores[-removed,]
 pc_scores_test <- pc_scores[removed,]
 
+save(P_train,P_test,
+     pathway_surv,pc_surv,
+     pathway_surv_train,pathway_surv_test,
+     pc_surv_train,pc_surv_test,
+     pathway.scores_train,pathway.scores_test,
+     pc_scores_train,pc_scores_test,file = "trainTestData.rda")
 #feature selection 1
 ##genetics and survival
 names_pathway <- colnames(pathway.scores)

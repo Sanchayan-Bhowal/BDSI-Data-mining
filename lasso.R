@@ -97,7 +97,7 @@ coefs_lasso_pc=as.data.frame(all_coefs_pc)
 ggplot(coefs_lasso_pc,aes(x = all_coefs_pc)) +
   geom_bar()
 coefs_lasso_pc <- coefs_lasso_pc %>% count(all_coefs_pc)
-frac <- 0.2 #fraction wanted
+frac <- 0.05 #fraction wanted
 coefs_lasso_pc <- coefs_lasso_pc %>% filter(n>(N*frac),all_coefs_pc!="(Intercept)")
 
 formula_pc_lasso <- as.formula(paste("P ~", 
