@@ -1,83 +1,83 @@
 library(caret)
 
 N <- 10
-rf_coefs_path <- c()
+lm_coefs_path <- c()
 control <- rfeControl(functions=lmFuncs, method="cv", number=10)
 for (i in 1:N) {
   set.seed(i)
   if(i %% 1==0){
     print(i/1)
   }
-  lasso_keep <- sample(1:49,39)
-  P_lasso <- P_train[lasso_keep]
-  pathway_surv_lasso <- pathway_surv_train[lasso_keep,]
-  pathway.scores_lasso <- pathway.scores_train[lasso_keep,]
+  lm_keep <- sample(1:49,39)
+  P_lm <- P_train[lm_keep]
+  pathway_surv_lm <- pathway_surv_train[lm_keep,]
+  pathway.scores_lm <- pathway.scores_train[lm_keep,]
   
   set.seed(07272023)
   #Random Forests
   # run the RFE algorithm
-  results_pathway_rf <- rfe(pathway.scores_train, P_train, sizes=c(1:30), rfeControl=control)
+  results_pathway_lm <- rfe(pathway.scores_lm, P_lm, sizes=c(1:30), rfeControl=control)
   # list the chosen features
   
-  rf_coefs_path <- c(rf_coefs_path,predictors(results_pathway_rf))
+  lm_coefs_path <- c(lm_coefs_path,predictors(results_pathway_lm))
 }
-coefs_rf_path=as.data.frame(rf_coefs_path)
-ggplot(coefs_rf_path,aes(x = rf_coefs_path)) +
+coefs_lm_path=as.data.frame(lm_coefs_path)
+ggplot(coefs_lm_path,aes(x = lm_coefs_path)) +
   geom_bar()
-coefs_rf_path <- coefs_rf_path %>% count(rf_coefs_path)
+coefs_lm_path <- coefs_lm_path %>% count(lm_coefs_path)
 frac <- 0.2 #fraction wanted
-coefs_rf_path <- coefs_rf_path %>% filter(n>(N*frac),rf_coefs_path!="(Intercept)")
+coefs_lm_path <- coefs_lm_path %>% filter(n>(N*frac),lm_coefs_path!="(Intercept)")
 
-formula_pathway_rf <- as.formula(paste("P ~", 
-                                          paste(coefs_rf_path$rf_coefs_path, 
+formula_pathway_lm <- as.formula(paste("P ~", 
+                                          paste(coefs_lm_path$lm_coefs_path, 
                                                 collapse = "+")))
-path_rf<-train(formula_pathway_rf, data = pathway_surv_train,
+path_lm<-train(formula_pathway_lm, data = pathway_surv_train,
                   method = 'glmnet', 
                   tuneGrid = expand.grid(alpha = 0, lambda = parameters),
                   trControl = ctrl,
                   metric = "RMSE"
 )
-predictions_path_rf <- path_rf %>% predict(pathway_surv_test)
+predictions_path_lm <- path_lm %>% predict(pathway_surv_test)
 
-path_rf_sum = postResample(predictions_path_rf, P_test)
+path_lm_sum = postResample(predictions_path_lm, P_test)
 
 N <- 10
-rf_coefs_pc <- c()
+lm_coefs_pc <- c()
 control <- rfeControl(functions=lmFuncs, method="cv", number=10)
 for (i in 1:N) {
   set.seed(i)
   if(i %% 1==0){
     print(i/1)
   }
-  lasso_keep <- sample(1:49,39)
-  P_lasso <- P_train[lasso_keep]
-  pc_surv_lasso <- pc_surv_train[lasso_keep,]
-  pc_scores_lasso <- pc_scores_train[lasso_keep,]
+  lm_keep <- sample(1:49,39)
+  P_lm <- P_train[lm_keep]
+  pc_surv_lm <- pc_surv_train[lm_keep,]
+  pc_scores_lm <- pc_scores_train[lm_keep,]
   
   set.seed(07272023)
   #Random Forests
   # run the RFE algorithm
-  results_pc_rf <- rfe(pc_scores_train, P_train, sizes=c(1:30), rfeControl=control)
+  results_pc_lm <- rfe(pc_scores_lm, P_lm, sizes=c(1:30), rfeControl=control)
   # list the chosen features
   
-  rf_coefs_pc <- c(rf_coefs_pc,predictors(results_pc_rf))
+  lm_coefs_pc <- c(lm_coefs_pc,predictors(results_pc_lm))
 }
-coefs_rf_pc=as.data.frame(rf_coefs_pc)
-ggplot(coefs_rf_pc,aes(x = rf_coefs_pc)) +
+coefs_lm_pc=as.data.frame(lm_coefs_pc)
+ggplot(coefs_lm_pc,aes(x = lm_coefs_pc)) +
   geom_bar()
-coefs_rf_pc <- coefs_rf_pc %>% count(rf_coefs_pc)
+coefs_lm_pc <- coefs_lm_pc %>% count(lm_coefs_pc)
 frac <- 0.2 #fraction wanted
-coefs_rf_pc <- coefs_rf_pc %>% filter(n>(N*frac),rf_coefs_pc!="(Intercept)")
+coefs_lm_pc <- coefs_lm_pc %>% filter(n>(N*frac),lm_coefs_pc!="(Intercept)")
 
-formula_pc_rf <- as.formula(paste("P ~", 
-                                          paste(coefs_rf_pc$rf_coefs_pc, 
+formula_pc_lm <- as.formula(paste("P ~", 
+                                          paste(coefs_lm_pc$lm_coefs_pc, 
                                                 collapse = "+")))
-pc_rf<-train(formula_pc_rf, data = pc_surv_train,
+pc_lm<-train(formula_pc_lm, data = pc_surv_train,
                   method = 'glmnet', 
                   tuneGrid = expand.grid(alpha = 0, lambda = parameters),
                   trControl = ctrl,
                   metric = "RMSE"
 )
-predictions_pc_rf <- pc_rf %>% predict(pc_surv_test)
+predictions_pc_lm <- pc_lm %>% predict(pc_surv_test)
 
-pc_rf_sum = postResample(predictions_pc_rf, P_test)
+pc_lm_sum = postResample(predictions_pc_lm, P_test)

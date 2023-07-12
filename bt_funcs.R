@@ -8,15 +8,15 @@ for (i in 1:N) {
   if(i %% 1==0){
     print(i/1)
   }
-  lasso_keep <- sample(1:49,39)
-  P_lasso <- P_train[lasso_keep]
-  pathway_surv_lasso <- pathway_surv_train[lasso_keep,]
-  pathway.scores_lasso <- pathway.scores_train[lasso_keep,]
+  bt_keep <- sample(1:49,39)
+  P_bt <- P_train[bt_keep]
+  pathway_surv_bt <- pathway_surv_train[bt_keep,]
+  pathway.scores_bt <- pathway.scores_train[bt_keep,]
   
   set.seed(07272023)
   #Random Forests
   # run the RFE algorithm
-  results_pathway_rf <- rfe(pathway.scores_train, P_train, sizes=c(1:30), rfeControl=control)
+  results_pathway_rf <- rfe(pathway.scores_bt, P_bt, sizes=c(1:30), rfeControl=control)
   # list the chosen features
   
   rf_coefs_path <- c(rf_coefs_path,predictors(results_pathway_rf))
@@ -49,15 +49,15 @@ for (i in 1:N) {
   if(i %% 1==0){
     print(i/1)
   }
-  lasso_keep <- sample(1:49,39)
-  P_lasso <- P_train[lasso_keep]
-  pc_surv_lasso <- pc_surv_train[lasso_keep,]
-  pc_scores_lasso <- pc_scores_train[lasso_keep,]
+  bt_keep <- sample(1:49,39)
+  P_bt <- P_train[bt_keep]
+  pc_surv_bt <- pc_surv_train[bt_keep,]
+  pc_scores_bt <- pc_scores_train[bt_keep,]
   
   set.seed(07272023)
   #Random Forests
   # run the RFE algorithm
-  results_pc_rf <- rfe(pc_scores_train, P_train, sizes=c(1:30), rfeControl=control)
+  results_pc_rf <- rfe(pc_scores_bt, P_bt, sizes=c(1:30), rfeControl=control)
   # list the chosen features
   
   rf_coefs_pc <- c(rf_coefs_pc,predictors(results_pc_rf))
