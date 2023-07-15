@@ -103,12 +103,12 @@ coefs_lasso_pc <- coefs_lasso_pc %>% filter(n>(N*frac),all_coefs_pc!="(Intercept
 formula_pc_lasso <- as.formula(paste("P ~", 
                  paste(coefs_lasso_pc$all_coefs_pc, 
                        collapse = "+")))
-path_lasso<-train(formula_pc_lasso, data = pc_surv_train,
+pc_lasso<-train(formula_pc_lasso, data = pc_surv_train,
                    method = 'glmnet', 
                    tuneGrid = expand.grid(alpha = 0, lambda = parameters),
                    trControl = ctrl,
                    metric = "RMSE"
 )
-predictions_path_lasso <- path_lasso %>% predict(pc_surv_test)
+predictions_pc_lasso <- pc_lasso %>% predict(pc_surv_test)
 
-path_lasso_sum = postResample(predictions_path_lasso, P_test)
+pc_lasso_sum = postResample(predictions_pc_lasso, P_test)

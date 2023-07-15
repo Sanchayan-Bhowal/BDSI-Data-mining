@@ -7,6 +7,7 @@ model_summary_path<-rbind(cv_model_path1$results,
     cv_model_path6$results)
 
 ridge_summary_path<-rbind(path_naive_sum,
+    path_lasso_sum,
     path_rf_sum,
     path_bor_ct_sum,
     path_bor_c_sum,
@@ -21,6 +22,7 @@ model_summary_pc<- rbind(cv_model_pc1$results,
     cv_model_pc6$results)
 
 ridge_summary_pc<-rbind(pc_naive_sum,
+    pc_lasso_sum,
     pc_rf_sum,
     pc_bor_ct_sum,
     pc_bor_c_sum,
@@ -42,8 +44,8 @@ class_summary_pc<-rbind(pc_naive_sum_class,
 save(ridge_summary_path,ridge_summary_pc,file = "ridge_summaries.rda")
 
 #best model predictions
-P_path=predict(path_bt,pathway_surv)
-P_pc=predict(pc_lm,pc_surv)
+P_path=predict(path_bor_ct,pathway_surv)
+P_pc=predict(pc_lasso,pc_surv)
 
 #best model predictions
 P_path_class=predict(pathway_lm_class,pathway_surv_class)

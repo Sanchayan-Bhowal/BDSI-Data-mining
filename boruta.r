@@ -1,12 +1,15 @@
 library(caret)
+library(Boruta)
+library(dplyr)
 
-N <- 10
+N <- 100
 bor_ct_coefs_path <- c()
+bor_c_coefs_path <- c()
 control <- rfeControl(functions=lmFuncs, method="cv", number=10)
 for (i in 1:N) {
   set.seed(i)
-  if(i %% 1==0){
-    print(i/1)
+  if(i %% 10==0){
+    print(i/10)
   }
   bor_keep <- sample(1:49,39)
   P_bor <- P_train[bor_keep]
@@ -66,13 +69,14 @@ predictions_path_bor_c <- path_bor_c %>% predict(pathway_surv_test)
 
 path_bor_c_sum = postResample(predictions_path_bor_c, P_test)
 
-N <- 10
+N <- 100
 bor_ct_coefs_pc <- c()
+bor_c_coefs_pc <- c()
 control <- rfeControl(functions=lmFuncs, method="cv", number=10)
 for (i in 1:N) {
   set.seed(i)
-  if(i %% 1==0){
-    print(i/1)
+  if(i %% 10==0){
+    print(i/10)
   }
   bor_keep <- sample(1:49,39)
   P_bor <- P_train[bor_keep]
@@ -83,14 +87,14 @@ for (i in 1:N) {
   boruta_pc <- Boruta(P~.,data = pc_surv_bor)
 
   #confirmed and tentative
-  boruta_pc1 <- names(boruta_path$finalDecision[boruta_path$finalDecision %in% 
+  boruta_pc1 <- names(boruta_pc$finalDecision[boruta_pc$finalDecision %in% 
                                                   c("Confirmed", "Tentative")])
   
-  boruta_pc2 <- names(boruta_path$finalDecision[boruta_path$finalDecision %in% 
+  boruta_pc2 <- names(boruta_pc$finalDecision[boruta_pc$finalDecision %in% 
                                                   c("Confirmed")])
   # list the chosen features
-  bor_ct_coefs_path <- c(bor_ct_coefs_path,boruta_pc1)
-  bor_c_coefs_path <- c(bor_ct_coefs_path,boruta_pc2)
+  bor_ct_coefs_pc <- c(bor_ct_coefs_pc,boruta_pc1)
+  bor_c_coefs_pc <- c(bor_ct_coefs_pc,boruta_pc2)
 }
 coefs_bor_ct_pc=as.data.frame(bor_ct_coefs_pc)
 ggplot(coefs_bor_ct_pc,aes(x = bor_ct_coefs_pc)) +

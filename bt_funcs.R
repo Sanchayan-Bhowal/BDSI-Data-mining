@@ -1,9 +1,9 @@
 library(caret)
 
 N <- 10
-rf_coefs_path <- c()
+bt_coefs_path <- c()
 control <- rfeControl(functions=treebagFuncs, method="cv", number=10)
-for (i in 1:N) {
+for (i in 1:N+30) {
   set.seed(i)
   if(i %% 1==0){
     print(i/1)
@@ -16,35 +16,34 @@ for (i in 1:N) {
   set.seed(07272023)
   #Random Forests
   # run the RFE algorithm
-  results_pathway_rf <- rfe(pathway.scores_bt, P_bt, sizes=c(1:30), rfeControl=control)
+  results_pathway_bt <- rfe(pathway.scores_bt, P_bt, sizes=c(1:30), rfeControl=control)
   # list the chosen features
   
-  rf_coefs_path <- c(rf_coefs_path,predictors(results_pathway_rf))
+  bt_coefs_path <- c(bt_coefs_path,predictors(results_pathway_bt))
 }
-coefs_rf_path=as.data.frame(rf_coefs_path)
-ggplot(coefs_rf_path,aes(x = rf_coefs_path)) +
+coefs_bt_path=as.data.frame(bt_coefs_path)
+ggplot(coefs_bt_path,aes(x = bt_coefs_path)) +
   geom_bar()
-coefs_rf_path <- coefs_rf_path %>% count(rf_coefs_path)
-frac <- 0.2 #fraction wanted
-coefs_rf_path <- coefs_rf_path %>% filter(n>(N*frac),rf_coefs_path!="(Intercept)")
+coefs_bt_path <- coefs_bt_path %>% count(bt_coefs_path)
+frac <- 0.5 #fraction wanted
+coefs_bt_path <- coefs_bt_path %>% filter(n>(40*frac),bt_coefs_path!="(Intercept)")
 
-formula_pathway_rf <- as.formula(paste("P ~", 
-                                          paste(coefs_rf_path$rf_coefs_path, 
+formula_pathway_bt <- as.formula(paste("P ~", 
+                                          paste(coefs_bt_path$bt_coefs_path, 
                                                 collapse = "+")))
-path_rf<-train(formula_pathway_rf, data = pathway_surv_train,
+path_bt<-train(formula_pathway_bt, data = pathway_surv_train,
                   method = 'glmnet', 
                   tuneGrid = expand.grid(alpha = 0, lambda = parameters),
                   trControl = ctrl,
                   metric = "RMSE"
 )
-predictions_path_rf <- path_rf %>% predict(pathway_surv_test)
+predictions_path_bt <- path_bt %>% predict(pathway_surv_test)
 
-path_rf_sum = postResample(predictions_path_rf, P_test)
+path_bt_sum = postResample(predictions_path_bt, P_test)
 
 N <- 10
-rf_coefs_pc <- c()
-control <- rfeControl(functions=treebagFuncs, method="cv", number=10)
-for (i in 1:N) {
+bt_coefs_pc <- c()
+for (i in 1:N+30) {
   set.seed(i)
   if(i %% 1==0){
     print(i/1)
@@ -57,27 +56,27 @@ for (i in 1:N) {
   set.seed(07272023)
   #Random Forests
   # run the RFE algorithm
-  results_pc_rf <- rfe(pc_scores_bt, P_bt, sizes=c(1:30), rfeControl=control)
+  results_pc_bt <- rfe(pc_scores_bt, P_bt, sizes=c(1:30), rfeControl=control)
   # list the chosen features
   
-  rf_coefs_pc <- c(rf_coefs_pc,predictors(results_pc_rf))
+  bt_coefs_pc <- c(bt_coefs_pc,predictors(results_pc_bt))
 }
-coefs_rf_pc=as.data.frame(rf_coefs_pc)
-ggplot(coefs_rf_pc,aes(x = rf_coefs_pc)) +
+coefs_bt_pc=as.data.frame(bt_coefs_pc)
+ggplot(coefs_bt_pc,aes(x = bt_coefs_pc)) +
   geom_bar()
-coefs_rf_pc <- coefs_rf_pc %>% count(rf_coefs_pc)
-frac <- 0.2 #fraction wanted
-coefs_rf_pc <- coefs_rf_pc %>% filter(n>(N*frac),rf_coefs_pc!="(Intercept)")
+coefs_bt_pc <- coefs_bt_pc %>% count(bt_coefs_pc)
+frac <- 0.5 #fraction wanted
+coefs_bt_pc <- coefs_bt_pc %>% filter(n>(40*frac),bt_coefs_pc!="(Intercept)")
 
-formula_pc_rf <- as.formula(paste("P ~", 
-                                          paste(coefs_rf_pc$rf_coefs_pc, 
+formula_pc_bt <- as.formula(paste("P ~", 
+                                          paste(coefs_bt_pc$bt_coefs_pc, 
                                                 collapse = "+")))
-pc_rf<-train(formula_pc_rf, data = pc_surv_train,
+pc_bt<-train(formula_pc_bt, data = pc_surv_train,
                   method = 'glmnet', 
                   tuneGrid = expand.grid(alpha = 0, lambda = parameters),
                   trControl = ctrl,
                   metric = "RMSE"
 )
-predictions_pc_rf <- pc_rf %>% predict(pc_surv_test)
+predictions_pc_bt <- pc_bt %>% predict(pc_surv_test)
 
-pc_rf_sum = postResample(predictions_pc_rf, P_test)
+pc_bt_sum = postResample(predictions_pc_bt, P_test)
