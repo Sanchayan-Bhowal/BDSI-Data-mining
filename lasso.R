@@ -56,8 +56,8 @@ coefs_lasso_path=as.data.frame(all_coefs_path)
 ggplot(coefs_lasso_path,aes(x = all_coefs_path)) +
   geom_bar()
 coefs_lasso_path <- coefs_lasso_path %>% count(all_coefs_path)
-frac <- 0.2 #fraction wanted
-coefs_lasso_path <- coefs_lasso_path %>% filter(n>(N*frac),all_coefs_path!="(Intercept)")
+cutoff <- as.numeric(quantile(coefs_lasso_path$n,probs = 0.8)) #fraction wanted
+coefs_lasso_path <- coefs_lasso_path %>% filter(n>cutoff,all_coefs_path!="(Intercept)")
 
 formula_pathway_lasso <- as.formula(paste("P ~", 
                  paste(coefs_lasso_path$all_coefs_path, 
@@ -69,6 +69,7 @@ path_lasso<-train(formula_pathway_lasso, data = pathway_surv_train,
                    metric = "RMSE"
 )
 predictions_path_lasso <- path_lasso %>% predict(pathway_surv_test)
+train_predictions_path_lasso <- path_lasso %>% predict(pathway_surv_train)
 
 path_lasso_sum = postResample(predictions_path_lasso, P_test)
 
@@ -97,8 +98,8 @@ coefs_lasso_pc=as.data.frame(all_coefs_pc)
 ggplot(coefs_lasso_pc,aes(x = all_coefs_pc)) +
   geom_bar()
 coefs_lasso_pc <- coefs_lasso_pc %>% count(all_coefs_pc)
-frac <- 0.05 #fraction wanted
-coefs_lasso_pc <- coefs_lasso_pc %>% filter(n>(N*frac),all_coefs_pc!="(Intercept)")
+cutoff <- as.numeric(quantile(coefs_lasso_pc$n,probs = 0.8)) #fraction wanted
+coefs_lasso_pc <- coefs_lasso_pc %>% filter(n>cutoff,all_coefs_pc!="(Intercept)")
 
 formula_pc_lasso <- as.formula(paste("P ~", 
                  paste(coefs_lasso_pc$all_coefs_pc, 
@@ -110,5 +111,21 @@ pc_lasso<-train(formula_pc_lasso, data = pc_surv_train,
                    metric = "RMSE"
 )
 predictions_pc_lasso <- pc_lasso %>% predict(pc_surv_test)
+train_predictions_pc_lasso <- pc_lasso %>% predict(pc_surv_train)
 
 pc_lasso_sum = postResample(predictions_pc_lasso, P_test)
+
+lasso_coefs=c(coefs_lasso_path$all_coefs_path,coefs_lasso_pc$all_coefs_pc)
+formula_lasso <- as.formula(paste("P ~", 
+                                  paste(lasso_coefs, 
+                                        collapse = "+")))
+final_en_lasso <- caret::train(formula_lasso, data = full_train,
+                           method = 'glmnet', 
+                           tuneLength=10,
+                           trControl = ctrl,
+                           metric = "RMSE"
+)
+
+predictions_lasso <- final_en_lasso %>% predict(full_test)
+
+lasso_sum = postResample(predictions_lasso, P_test)

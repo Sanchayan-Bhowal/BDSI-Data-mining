@@ -13,6 +13,9 @@ removed <- sample(1:61,12)
 P_test=P[removed]
 P_train <- P[-removed]
 
+ggplot(J, aes(x=1,y=Y,fill=2)) + # fill=name allow to automatically dedicate a color for each group
+  geom_violin()
+
 pc_surv=as.data.frame(cbind(pc_scores,P))
 pc_surv_train <- pc_surv[-removed,]
 pc_surv_test <- pc_surv[removed,]
@@ -32,6 +35,9 @@ pathway.scores_test <- pathway.scores[removed,]
 
 pc_scores_train <- pc_scores[-removed,]
 pc_scores_test <- pc_scores[removed,]
+
+full_train <- as.data.frame(cbind(pathway.scores_train,pc_surv_train))
+full_test <- as.data.frame(cbind(pathway.scores_test,pc_surv_test))
 
 save(P_train,P_test,
      pathway_surv,pc_surv,

@@ -38,6 +38,7 @@ path_lm<-train(formula_pathway_lm, data = pathway_surv_train,
                   metric = "RMSE"
 )
 predictions_path_lm <- path_lm %>% predict(pathway_surv_test)
+train_predictions_path_lm <- path_lm %>% predict(pathway_surv_train)
 
 path_lm_sum = postResample(predictions_path_lm, P_test)
 
@@ -79,5 +80,22 @@ pc_lm<-train(formula_pc_lm, data = pc_surv_train,
                   metric = "RMSE"
 )
 predictions_pc_lm <- pc_lm %>% predict(pc_surv_test)
+train_predictions_pc_lm <- pc_lm %>% predict(pc_surv_train)
 
 pc_lm_sum = postResample(predictions_pc_lm, P_test)
+
+lm_coefs=c(coefs_lm_path$lm_coefs_path,coefs_lm_pc$lm_coefs_pc)
+formula_lm <- as.formula(paste("P ~", 
+                               paste(lm_coefs, 
+                                     collapse = "+")))
+
+final_en_lm <- train(formula_lm, data = full_train,
+                            method = 'glmnet', 
+                            tuneLength=10,
+                            trControl = ctrl,
+                            metric = "RMSE"
+)
+
+predictions_lm <- final_en_lm %>% predict(full_test)
+
+lm_sum = postResample(predictions_lm, P_test)
